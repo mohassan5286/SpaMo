@@ -1,0 +1,86 @@
+model:
+  target: spamo.t5_slt.FlanT5SLT
+  
+  params:     
+    lr: 6.0e-4
+    monitor: val/bleu4
+    model_name: google/flan-t5-xl
+    cache_dir: /data3/models
+    inter_hidden: 768
+    input_size: 2048
+    beam_size: 5
+    max_frame_len: 512
+    max_txt_len: 64
+    frame_sample_rate: 1
+    prompt: "Translate the given sentence into {}."
+    tuning_type: lora
+    lora_r: 16
+    lora_alpha: 32
+    lora_dropout: 0.1
+    fusion_mode: joint
+    warm_up_steps: 1000
+    cross_modal_align: true
+    combined_loss: true
+    alpha: 1.0
+    use_in_context: true
+    num_in_context: 3
+
+lightning:
+  callback:
+    learning_rate_logger:
+      target: pytorch_lightning.callbacks.LearningRateMonitor
+      params:
+        logging_interval: step
+  trainer:
+    accumulate_grad_batches: 2
+    accelerator: gpu
+    devices: 1
+    max_epochs: 500
+    gradient_clip_val: 1.0
+    check_val_every_n_epoch: 2
+    precision: bf16
+
+data:
+  target: dataset.datamodule.DataModuleFromConfig
+  params:
+    batch_size: 8
+    num_workers: 4
+  
+    train:
+      target: dataset.p14t.Phoenix14T
+      params:
+        anno_root: ./preprocess/Phoenix14T
+        vid_root: ./dataset/Phoenix14T
+        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
+        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        mode: train
+        spatial: true
+        spatiotemporal: true
+        spatial_postfix: _s2wrapping
+        spatiotemporal_postfix: _overlap-8-pretrained
+        
+    validation:
+      target: dataset.p14t.Phoenix14T
+      params:
+        anno_root: ./preprocess/Phoenix14T
+        vid_root: ./dataset/Phoenix14T
+        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
+        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        mode: dev
+        spatial: true
+        spatiotemporal: true
+        spatial_postfix: _s2wrapping
+        spatiotemporal_postfix: _overlap-8-pretrained
+    
+    test:
+      target: dataset.p14t.Phoenix14T
+      params:
+        anno_root: ./preprocess/Phoenix14T
+        vid_root: ./dataset/Phoenix14T
+        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
+        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        mode: test
+        spatial: true
+        spatiotemporal: true
+        spatial_postfix: _s2wrapping
+        spatiotemporal_postfix: _overlap-8-pretrained
