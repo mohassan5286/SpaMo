@@ -101,7 +101,7 @@ Pre-trained checkpoints are available for download [here]() *(Note: Download lin
 Please cite our works if you find this repo is helpful.
 
 ```bash
-@inproceedings{hwang2024efficient,
+@inproceedings{hwang2025efficient,
   title={An Efficient Sign Language Translation Using Spatial Configuration and Motion Dynamics with LLMs},
   author={Hwang, Eui Jun and Cho, Sukmin and Lee, Junmyeong and Park, Jong C},
   booktitle={NAACL},
