@@ -71,7 +71,7 @@ python scripts/mae_extract_feature.py \
     --device cuda:0
 ```
 
-For convenience, you can download our pre-extracted features from the [links](https://www.dropbox.com/scl/fo/vgbws4cftewpoc6kudoap/AOtWs7adP4AvK0iT7KkWaJk?rlkey=nf3wp64zenqx3t2z695ndzcy7&st=9ydialet&dl=0).
+For convenience, you can download our pre-extracted features from [here](https://www.dropbox.com/scl/fo/vgbws4cftewpoc6kudoap/AOtWs7adP4AvK0iT7KkWaJk?rlkey=nf3wp64zenqx3t2z695ndzcy7&st=9ydialet&dl=0).
 
 
 ## Model Training and Evaluation
