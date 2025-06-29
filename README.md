@@ -1,6 +1,6 @@
 # An Efficient Gloss-Free Sign Language Translation Using Spatial Configurations and Motion Dynamics with LLMs
 
-Official implementation for the NAACL 2025 [paper](https://arxiv.org/pdf/2408.10593): An Efficient Gloss-Free Sign Language Translation Using Spatial Configurations and Motion Dynamics with LLMs
+Official implementation for the NAACL 2025 [paper](https://aclanthology.org/2025.naacl-long.197.pdf): An Efficient Gloss-Free Sign Language Translation Using Spatial Configurations and Motion Dynamics with LLMs
 
 
 ## Introduction
