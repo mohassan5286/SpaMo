@@ -93,7 +93,7 @@ python main.py -c configs/finetune.yaml -e bleu --train False --test True --ckpt
 ```
 
 Replace `/PATH/TO/CHECKPOINT` with your model checkpoint path.
-Pre-trained checkpoints are available for download [here]() *(Note: Download links will be updated soon)*.
+Pre-trained checkpoints are available for download [here](https://www.dropbox.com/scl/fi/c9khflgxgl96lx919p6oq/spamo.ckpt?rlkey=gp3zmk6jwg9cnf3e2hpw268ih&st=u103orvs&dl=0).
 
 
 ## Citation
