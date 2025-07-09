@@ -18,7 +18,7 @@ model:
     lora_alpha: 32
     lora_dropout: 0.1
     fusion_mode: joint
-    warm_up_steps: 1000
+    warm_up_steps: 0
     cross_modal_align: true
     combined_loss: true
     alpha: 1.0
@@ -66,7 +66,7 @@ data:
         vid_root: ./dataset/Phoenix14T
         feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
         mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
-        mode: dev
+        mode: test
         spatial: true
         spatiotemporal: true
         spatial_postfix: _s2wrapping

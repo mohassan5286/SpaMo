@@ -123,7 +123,7 @@ def setup_logging_dirs(opt: argparse.Namespace) -> tuple:
     """
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
     
-    if opt.resume or opt.test:
+    if opt.resume:
         if not os.path.exists(opt.resume):
             raise ValueError(f"Cannot find checkpoint directory: {opt.resume}")
             

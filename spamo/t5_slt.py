@@ -372,7 +372,7 @@ class FlanT5SLT(AbstractSLT):
                     else:
                         glor_values.append(sample['glor_value'])
                         glor_lengths.append(len(sample['glor_value']))
-
+        
         ex_lang_translations = derangement(ex_lang_translations)
         
         # Return structured dictionary
@@ -580,6 +580,25 @@ class FlanT5SLT(AbstractSLT):
 
         self.log_dict(eval_res, sync_dist=True)
 
+        self.set_container()
+
+    def on_test_epoch_end(self) -> None:
+        # Print some examples of generated translations and references with colors
+        print("\n===== Validation Examples =====")
+        for i in range(min(5, len(self.generated))):
+            print(f"\033[94mReference: {self.references[i]}\033[0m")  # Blue color for references
+            print(f"\033[92mGenerated: {self.generated[i]}\033[0m")    # Green color for generated
+            print("-" * 50)
+            
+        # Calculate evaluation metrics
+        eval_res = evaluate_results(
+            predictions=self.generated,
+            references=self.references,
+            split='test',
+            device=self.device
+        )
+
+        self.log_dict(eval_res, sync_dist=True)
         self.set_container()
 
     def configure_optimizers(self):
