@@ -373,7 +373,9 @@ class FlanT5SLT(AbstractSLT):
                         glor_values.append(sample['glor_value'])
                         glor_lengths.append(len(sample['glor_value']))
         
-        ex_lang_translations = derangement(ex_lang_translations)
+        # Only call derangement if the list has enough items
+        if len(ex_lang_translations) > 1:
+            ex_lang_translations = derangement(ex_lang_translations)
         
         # Return structured dictionary
         return {
