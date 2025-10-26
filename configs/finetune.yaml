@@ -5,7 +5,7 @@ model:
     lr: 6.0e-4
     monitor: val/bleu4
     model_name: google/flan-t5-small
-    cache_dir: /data3/models
+    cache_dir: data3/models
     inter_hidden: 512
     input_size: 2048
     beam_size: 5
@@ -51,8 +51,8 @@ data:
       params:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
-        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
-        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        feat_root: data2/sl_datasets/vit_feat_Phoenix14T
+        mae_feat_root: data2/sl_datasets/mae_feat_Phoenix14T
         mode: train
         spatial: true
         spatiotemporal: true
@@ -64,8 +64,8 @@ data:
       params:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
-        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
-        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        feat_root: data2/sl_datasets/vit_feat_Phoenix14T
+        mae_feat_root: data2/sl_datasets/mae_feat_Phoenix14T
         mode: test
         spatial: true
         spatiotemporal: true
@@ -77,8 +77,8 @@ data:
       params:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
-        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
-        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        feat_root: data2/sl_datasets/vit_feat_Phoenix14T
+        mae_feat_root: data2/sl_datasets/mae_feat_Phoenix14T
         mode: test
         spatial: true
         spatiotemporal: true
