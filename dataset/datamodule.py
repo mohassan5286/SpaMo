@@ -31,7 +31,7 @@ class DataModuleFromConfig(pl.LightningDataModule):
             dataset=self.datasets['train'], 
             batch_size=self.batch_size,
             pin_memory=True,
-            num_workers=os.cpu_count(),
+            num_workers=os.cpu_count() // 2,
             persistent_workers=True,
             shuffle=True,
             # collate_fn=BaseFeeder.collate_fn if self.use_collate else None
@@ -43,7 +43,7 @@ class DataModuleFromConfig(pl.LightningDataModule):
             dataset=self.datasets['valid'], 
             pin_memory=True,
             batch_size=self.batch_size,
-            num_workers=os.cpu_count(),
+            num_workers=os.cpu_count() // 2,
             persistent_workers=True,
             shuffle=False,
             # collate_fn=BaseFeeder.collate_fn if self.use_collate else None,
@@ -55,7 +55,7 @@ class DataModuleFromConfig(pl.LightningDataModule):
             dataset=self.datasets['test'], 
             batch_size=self.batch_size,
             pin_memory=True,
-            num_workers=os.cpu_count(),
+            num_workers=os.cpu_count() // 2,
             persistent_workers=True,
             shuffle=False,
             # collate_fn=BaseFeeder.collate_fn if self.use_collate else None

@@ -39,7 +39,7 @@ class ViTFeatureReader(object):
         
         self.model = CLIPVisionModel.from_pretrained(
             model_name, output_hidden_states=True, cache_dir=cache_dir
-        ).to(device, non_blocking=True).eval()
+        ).to(device).eval()
         
         self.image_processor = AutoImageProcessor.from_pretrained(model_name)
 
@@ -51,7 +51,7 @@ class ViTFeatureReader(object):
 
     @torch.no_grad()
     def get_feats(self, video):
-        inputs = self.image_processor(list(video), return_tensors="pt").to(self.device, non_blocking=True).pixel_values
+        inputs = self.image_processor(list(video), return_tensors="pt").to(self.device).pixel_values
         if self.s2_mode == "s2wrapping":
             outputs = multiscale_forward(self.forward_features, inputs, scales=self.scales, num_prefix_token=1)
         else:

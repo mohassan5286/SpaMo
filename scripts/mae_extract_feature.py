@@ -32,11 +32,11 @@ class VideoMAEFeatureReader(object):
         self.nth_layer = nth_layer
 
         self.image_processor = VideoMAEImageProcessor.from_pretrained(model_name, cache_dir=cache_dir)
-        self.model = VideoMAEModel.from_pretrained(model_name).to(self.device, non_blocking=True).eval()
+        self.model = VideoMAEModel.from_pretrained(model_name).to(self.device).eval()
         
     @torch.no_grad()
     def get_feats(self, video):
-        inputs = self.image_processor(images=video, return_tensors="pt").to(self.device, non_blocking=True)
+        inputs = self.image_processor(images=video, return_tensors="pt").to(self.device)
         
         outputs = self.model(**inputs, output_hidden_states=True).hidden_states
         
