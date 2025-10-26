@@ -207,7 +207,7 @@ class FlanT5SLT(AbstractSLT):
             padding="longest",
             truncation=True,
             return_tensors="pt",
-        ).to(self.device)
+        ).to(self.device, non_blocking=True)
         
         # Get lengths for visual and prompt sequences
         visual_lengths = visual_mask.sum(1)
@@ -234,7 +234,7 @@ class FlanT5SLT(AbstractSLT):
             samples['text'],
             padding="longest",
             return_tensors="pt",
-        ).to(self.device)
+        ).to(self.device, non_blocking=True)
         
         # Prepare target labels (replace pad tokens with -100)
         targets = output_tokens.input_ids.masked_fill(
@@ -406,7 +406,7 @@ class FlanT5SLT(AbstractSLT):
             samples['text'],
             padding="longest",
             return_tensors="pt",
-        ).to(self.device)
+        ).to(self.device, non_blocking=True)
         
         # Get text embeddings
         text_embeds = self.t5_model.encoder.embed_tokens(output_tokens.input_ids)
