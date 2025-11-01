@@ -59,6 +59,7 @@ class FlanT5SLT(AbstractSLT): # <-- Class name kept as requested
         **kwargs
     ):
         super().__init__(**kwargs)
+        self.save_hyperparameters()
         
         # Configuration parameters
         self.input_size = input_size
