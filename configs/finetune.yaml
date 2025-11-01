@@ -4,7 +4,7 @@ model:
   params:     
     lr: 6.0e-4
     monitor: val/bleu4
-    model_name: google/flan-t5-small
+    model_name: Qwen/Qwen2-0.5B-Instruct
     cache_dir: data3/models
     inter_hidden: 512
     input_size: 2048
@@ -12,7 +12,7 @@ model:
     max_frame_len: 512
     max_txt_len: 64
     frame_sample_rate: 1
-    prompt: "Translate the given sentence into {}."
+    prompt: "Translate the sign language video into {}."
     tuning_type: lora
     lora_r: 16
     lora_alpha: 32
@@ -36,7 +36,7 @@ lightning:
     accelerator: gpu
     devices: 2
     strategy: ddp_find_unused_parameters_true
-    max_epochs: 300
+    max_epochs: 100
     gradient_clip_val: 1.0
     check_val_every_n_epoch: 2
     precision: bf16
