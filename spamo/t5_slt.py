@@ -30,12 +30,12 @@ torch.set_float32_matmul_precision('high')
 class FlanT5SLT(AbstractSLT):
     """
     MODIFIED CLASS: This class is named FlanT5SLT but is configured 
-    to run Decoder-Only models like Qwen2.
+    to run Decoder-Only models like Gemma.
     """
     def __init__(
         self, 
         tuning_type: str = 'lora', 
-        model_name: Optional[str] = 'Qwen/Qwen2-0.5B-Instruct',
+        model_name: Optional[str] = 'google/gemma-3-270m-it',
         frame_sample_rate: int = 1, 
         prompt: str = '',
         input_size: int = 1024,
@@ -131,15 +131,14 @@ class FlanT5SLT(AbstractSLT):
         Prepare the textual and visual models.
         """
         
-        model_config = AutoConfig.from_pretrained(model_name, cache_dir=self.cache_dir, trust_remote_code=True)
+        model_config = AutoConfig.from_pretrained(model_name, cache_dir=self.cache_dir)
         
         # Load the textual model (CAUSAL LM)
         self.t5_model = AutoModelForCausalLM.from_pretrained(
             model_name, 
             config=model_config,
             cache_dir=self.cache_dir,
-            torch_dtype=torch.bfloat16, 
-            trust_remote_code=True
+            torch_dtype=torch.bfloat16
         )
         
         # Load the tokenizer
@@ -147,8 +146,7 @@ class FlanT5SLT(AbstractSLT):
             model_name, 
             cache_dir=self.cache_dir,
             max_length=self.max_txt_len,
-            padding_side='right',
-            trust_remote_code=True
+            padding_side='right'
         )
         # Set pad token if not present
         if self.t5_tokenizer.pad_token is None:
@@ -342,9 +340,10 @@ class FlanT5SLT(AbstractSLT):
         
         # 3. Build the batch, sample by sample
         for i in range(bs):
-            # A. Create the prompt text using Qwen2's ChatML format
-            system_prompt_str = "<|im_start|>system\nYou are a helpful sign language translator.<|im_end|>\n"
-            user_prompt_str = f"<|im_start|>user\n{prompts[i]}<|im_end|>\n<|im_start|>assistant\n"
+            # A. Create the prompt text using Gemma's format
+            # Gemma uses <start_of_turn> tokens for conversation
+            system_prompt_str = "<start_of_turn>user\n"
+            user_prompt_str = f"{prompts[i]}<end_of_turn>\n<start_of_turn>model\n"
             
             # Tokenize text parts
             system_tokens = self.t5_tokenizer(system_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
@@ -420,8 +419,8 @@ class FlanT5SLT(AbstractSLT):
             prompt_masks_list = []
             
             for i in range(bs):
-                system_prompt_str = "<|im_start|>system\nYou are a helpful sign language translator.<|im_end|>\n"
-                user_prompt_str = f"<|im_start|>user\n{prompts[i]}<|im_end|>\n<|im_start|>assistant\n"
+                system_prompt_str = "<start_of_turn>user\n"
+                user_prompt_str = f"{prompts[i]}<end_of_turn>\n<start_of_turn>model\n"
                 
                 system_tokens = self.t5_tokenizer(system_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
                 user_tokens = self.t5_tokenizer(user_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)

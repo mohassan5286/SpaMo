@@ -4,9 +4,9 @@ model:
   params:     
     lr: 6.0e-4
     monitor: val/bleu4
-    model_name: Qwen/Qwen2-0.5B-Instruct
+    model_name: google/gemma-3-270m-it
     cache_dir: data3/models
-    inter_hidden: 896
+    inter_hidden: 768
     input_size: 2048
     beam_size: 5
     max_frame_len: 512
@@ -44,7 +44,7 @@ lightning:
 data:
   target: dataset.datamodule.DataModuleFromConfig
   params:
-    batch_size: 4
+    batch_size: 8
     num_workers: 4
   
     train:
