@@ -2,28 +2,28 @@ model:
   target: spamo.t5_slt.FlanT5SLT
   
   params:     
-    lr: 6.0e-4
+    lr: 8.0e-4
     monitor: val/bleu4
     model_name: google/gemma-3-270m-it
     cache_dir: data3/models
     inter_hidden: 640
     input_size: 2048
-    beam_size: 5
+    beam_size: 4
     max_frame_len: 512
     max_txt_len: 64
     frame_sample_rate: 1
     prompt: "Translate the sign language video into {}."
     tuning_type: lora
-    lora_r: 16
-    lora_alpha: 32
-    lora_dropout: 0.1
+    lora_r: 32
+    lora_alpha: 64
+    lora_dropout: 0.05
     fusion_mode: joint
     warm_up_steps: 0
     cross_modal_align: true
     combined_loss: true
-    alpha: 1.0
-    use_in_context: true
-    num_in_context: 3
+    alpha: 0.5
+    use_in_context: false
+    num_in_context: 0
 
 lightning:
   callback:
@@ -32,19 +32,19 @@ lightning:
       params:
         logging_interval: step
   trainer:
-    accumulate_grad_batches: 2
+    accumulate_grad_batches: 4
     accelerator: gpu
     devices: 2
     strategy: ddp_find_unused_parameters_true
     max_epochs: 25
     gradient_clip_val: 1.0
-    check_val_every_n_epoch: 2
+    check_val_every_n_epoch: 5
     precision: bf16
 
 data:
   target: dataset.datamodule.DataModuleFromConfig
   params:
-    batch_size: 4
+    batch_size: 6
     num_workers: 4
   
     train:

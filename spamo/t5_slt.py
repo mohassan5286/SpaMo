@@ -61,7 +61,7 @@ class FlanT5SLT(AbstractSLT):
     ):
         super().__init__(**kwargs)
         self.save_hyperparameters()
-        
+
         # Configuration parameters
         self.input_size = input_size
         self.prompt = prompt
@@ -444,13 +444,14 @@ class FlanT5SLT(AbstractSLT):
                 inputs_embeds=prompt_embeds_padded,
                 attention_mask=prompt_attention_mask,
                 max_new_tokens=self.max_txt_len,
-                min_new_tokens=5,
+                min_new_tokens=8,
                 do_sample=False,
                 num_beams=self.hparams.beam_size,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
                 pad_token_id=self.t5_tokenizer.pad_token_id,
-                repetition_penalty=1.2,
-                length_penalty=1.0,
+                repetition_penalty=1.1,
+                length_penalty=0.8,
+                no_repeat_ngram_size=3
             )
             
             # Decode the full output and extract only the generated part
