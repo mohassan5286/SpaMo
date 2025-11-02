@@ -33,7 +33,9 @@ class FlanT5SLT(AbstractSLT):
     to run Decoder-Only models like Gemma.
     """
     def __init__(
-        self, 
+        self,
+        lr: float = 6.0e-4,
+        beam_size: int = 5, 
         tuning_type: str = 'lora', 
         model_name: Optional[str] = 'google/gemma-3-270m-it',
         frame_sample_rate: int = 1, 
@@ -59,7 +61,7 @@ class FlanT5SLT(AbstractSLT):
     ):
         super().__init__(**kwargs)
         self.save_hyperparameters()
-        
+
         # Configuration parameters
         self.input_size = input_size
         self.prompt = prompt
