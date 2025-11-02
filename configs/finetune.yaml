@@ -6,7 +6,7 @@ model:
     monitor: val/bleu4
     model_name: Qwen/Qwen2-0.5B-Instruct
     cache_dir: data3/models
-    inter_hidden: 512
+    inter_hidden: 896
     input_size: 2048
     beam_size: 5
     max_frame_len: 512
