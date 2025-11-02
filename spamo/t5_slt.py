@@ -58,8 +58,7 @@ class FlanT5SLT(AbstractSLT):
         **kwargs
     ):
         super().__init__(**kwargs)
-        self.save_hyperparameters()
-
+        
         # Configuration parameters
         self.input_size = input_size
         self.prompt = prompt
@@ -138,7 +137,7 @@ class FlanT5SLT(AbstractSLT):
             model_name, 
             config=model_config,
             cache_dir=self.cache_dir,
-            dtype=torch.bfloat16
+            torch_dtype=torch.bfloat16
         )
         
         # Load the tokenizer
@@ -441,19 +440,17 @@ class FlanT5SLT(AbstractSLT):
             generated_ids = self.t5_model.generate(
                 inputs_embeds=prompt_embeds_padded,
                 attention_mask=prompt_attention_mask,
-                num_beams=self.hparams.beam_size,
                 max_new_tokens=self.max_txt_len,
-                # do_sample=True,
-                top_p=0.9,
+                do_sample=False,
+                num_beams=self.hparams.beam_size,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
                 pad_token_id=self.t5_tokenizer.pad_token_id,
             )
             
-            prompt_lengths = [len(p) for p in prompt_embeds_list]
+            # Decode the full output and extract only the generated part
             generated_strings = []
             for i in range(bs):
-                gen_tokens = generated_ids[i, prompt_lengths[i]:] 
-                gen_str = self.t5_tokenizer.decode(gen_tokens, skip_special_tokens=True)
+                gen_str = self.t5_tokenizer.decode(generated_ids[i], skip_special_tokens=True)
                 generated_strings.append(gen_str.lower())
             
             reference_strings = [ref.lower() for ref in target_texts]
