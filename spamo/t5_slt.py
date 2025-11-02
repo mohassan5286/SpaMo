@@ -59,7 +59,7 @@ class FlanT5SLT(AbstractSLT):
     ):
         super().__init__(**kwargs)
         self.save_hyperparameters()
-        
+
         # Configuration parameters
         self.input_size = input_size
         self.prompt = prompt
@@ -138,7 +138,7 @@ class FlanT5SLT(AbstractSLT):
             model_name, 
             config=model_config,
             cache_dir=self.cache_dir,
-            torch_dtype=torch.bfloat16
+            dtype=torch.bfloat16
         )
         
         # Load the tokenizer
@@ -443,7 +443,7 @@ class FlanT5SLT(AbstractSLT):
                 attention_mask=prompt_attention_mask,
                 num_beams=self.hparams.beam_size,
                 max_new_tokens=self.max_txt_len,
-                do_sample=True,
+                # do_sample=True,
                 top_p=0.9,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
                 pad_token_id=self.t5_tokenizer.pad_token_id,
