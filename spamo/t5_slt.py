@@ -140,7 +140,7 @@ class FlanT5SLT(AbstractSLT):
             model_name, 
             config=model_config,
             cache_dir=self.cache_dir,
-            torch_dtype=torch.bfloat16
+            dtype=torch.bfloat16
         )
         
         # Load the tokenizer
