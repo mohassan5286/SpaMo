@@ -12,7 +12,7 @@ model:
     max_frame_len: 512
     max_txt_len: 64
     frame_sample_rate: 1
-    prompt: "Translate the sign language video into {}."
+    prompt: "Translate the given sentence into {}."
     tuning_type: lora
     lora_r: 32
     lora_alpha: 64
@@ -32,10 +32,11 @@ lightning:
       params:
         logging_interval: step
   trainer:
+    num_sanity_val_steps: 0
     accumulate_grad_batches: 4
     accelerator: gpu
     devices: 2
-    strategy: ddp_find_unused_parameters_true
+    strategy: ddp
     max_epochs: 30
     gradient_clip_val: 1.0
     check_val_every_n_epoch: 5
