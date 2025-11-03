@@ -12,13 +12,13 @@ model:
     max_frame_len: 512
     max_txt_len: 64
     frame_sample_rate: 1
-    prompt: "Translate the given sentence into {}."
+    prompt: "Translate the sign language video into {}."
     tuning_type: lora
-    lora_r: 16
-    lora_alpha: 32
+    lora_r: 32
+    lora_alpha: 64
     lora_dropout: 0.05
     fusion_mode: joint
-    warm_up_steps: 500
+    warm_up_steps: 0
     cross_modal_align: true
     combined_loss: true
     alpha: 0.5
@@ -32,12 +32,11 @@ lightning:
       params:
         logging_interval: step
   trainer:
-    num_sanity_val_steps: 0
     accumulate_grad_batches: 4
     accelerator: gpu
     devices: 2
     strategy: ddp_find_unused_parameters_true
-    max_epochs: 30
+    max_epochs: 25
     gradient_clip_val: 1.0
     check_val_every_n_epoch: 5
     precision: bf16
