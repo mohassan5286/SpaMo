@@ -18,10 +18,10 @@ model:
     lora_alpha: 32
     lora_dropout: 0.05
     fusion_mode: joint
-    warm_up_steps: 0
+    warm_up_steps: 500
     cross_modal_align: true
     combined_loss: true
-    alpha: 0.5
+    alpha: 1.0
     use_in_context: false
     num_in_context: 0
 
@@ -45,7 +45,7 @@ lightning:
 data:
   target: dataset.datamodule.DataModuleFromConfig
   params:
-    batch_size: 4
+    batch_size: 6
     num_workers: 4
   
     train:
