@@ -18,7 +18,7 @@ model:
     lora_alpha: 64
     lora_dropout: 0.05
     fusion_mode: joint
-    warm_up_steps: 0
+    warm_up_steps: 500
     cross_modal_align: true
     combined_loss: true
     alpha: 0.5
@@ -36,9 +36,9 @@ lightning:
     accelerator: gpu
     devices: 2
     strategy: ddp_find_unused_parameters_true
-    max_epochs: 25
+    max_epochs: 24
     gradient_clip_val: 1.0
-    check_val_every_n_epoch: 5
+    check_val_every_n_epoch: 4
     precision: bf16
 
 data:
