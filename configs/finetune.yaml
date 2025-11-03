@@ -21,9 +21,9 @@ model:
     warm_up_steps: 500
     cross_modal_align: true
     combined_loss: true
-    alpha: 1.0
-    use_in_context: false
-    num_in_context: 0
+    alpha: 0.5
+    use_in_context: true
+    num_in_context: 1
 
 lightning:
   callback:
