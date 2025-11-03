@@ -2,26 +2,26 @@ model:
   target: spamo.t5_slt.FlanT5SLT
   
   params:     
-    lr: 5.0e-4  # Reduced from 8e-4 for more stable training
+    lr: 8.0e-4
     monitor: val/bleu4
     model_name: google/gemma-3-270m-it
     cache_dir: data3/models
     inter_hidden: 640
     input_size: 2048
-    beam_size: 3  # Reduced from 4 for faster validation
+    beam_size: 4
     max_frame_len: 512
     max_txt_len: 64
     frame_sample_rate: 1
-    prompt: "Translate the sign language video into {}."  # Changed back - more accurate
+    prompt: "Translate the given sentence into {}."
     tuning_type: lora
-    lora_r: 24  # Increased from 16 for better capacity
-    lora_alpha: 48  # Scaled proportionally (2x lora_r)
-    lora_dropout: 0.05  # Keep low dropout
+    lora_r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
     fusion_mode: joint
-    warm_up_steps: 300  # Reduced from 500 for faster warmup
+    warm_up_steps: 500
     cross_modal_align: true
     combined_loss: true
-    alpha: 0.3  # Reduced from 0.5 to prioritize main translation loss
+    alpha: 0.5
     use_in_context: false
     num_in_context: 0
 
@@ -32,20 +32,20 @@ lightning:
       params:
         logging_interval: step
   trainer:
-    num_sanity_val_steps: 0  # Skip sanity check for faster startup
-    accumulate_grad_batches: 3  # Reduced from 4 (effective batch = 6*2*3 = 36)
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 4
     accelerator: gpu
     devices: 2
-    strategy: ddp  # Good - removed find_unused_parameters for speed
+    strategy: ddp
     max_epochs: 30
     gradient_clip_val: 1.0
-    check_val_every_n_epoch: 3  # Changed from 5 - validate more often
-    precision: bf16-mixed  # Changed from bf16 for better stability
+    check_val_every_n_epoch: 5
+    precision: bf16
 
 data:
   target: dataset.datamodule.DataModuleFromConfig
   params:
-    batch_size: 6
+    batch_size: 4
     num_workers: 4
   
     train:
@@ -80,7 +80,7 @@ data:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
         feat_root: feat_Phoenix14T
-        mae_feat_root: mae_feat_ROM14T
+        mae_feat_root: mae_feat_Phoenix14T
         mode: test
         spatial: true
         spatiotemporal: true
