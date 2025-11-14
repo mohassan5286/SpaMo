@@ -30,14 +30,12 @@ torch.set_float32_matmul_precision('high')
 class FlanT5SLT(AbstractSLT):
     """
     MODIFIED CLASS: This class is named FlanT5SLT but is configured 
-    to run Decoder-Only models like Gemma.
+    to run Decoder-Only models like Qwen2.
     """
     def __init__(
-        self,
-        lr: float = 6.0e-4,
-        beam_size: int = 5,  
+        self, 
         tuning_type: str = 'lora', 
-        model_name: Optional[str] = 'google/gemma-3-270m-it',
+        model_name: Optional[str] = 'Qwen/Qwen2-0.5B-Instruct',
         frame_sample_rate: int = 1, 
         prompt: str = '',
         input_size: int = 1024,
@@ -61,7 +59,7 @@ class FlanT5SLT(AbstractSLT):
     ):
         super().__init__(**kwargs)
         self.save_hyperparameters()
-
+        
         # Configuration parameters
         self.input_size = input_size
         self.prompt = prompt
@@ -133,14 +131,15 @@ class FlanT5SLT(AbstractSLT):
         Prepare the textual and visual models.
         """
         
-        model_config = AutoConfig.from_pretrained(model_name, cache_dir=self.cache_dir)
+        model_config = AutoConfig.from_pretrained(model_name, cache_dir=self.cache_dir, trust_remote_code=True)
         
         # Load the textual model (CAUSAL LM)
         self.t5_model = AutoModelForCausalLM.from_pretrained(
             model_name, 
             config=model_config,
             cache_dir=self.cache_dir,
-            dtype=torch.bfloat16
+            torch_dtype=torch.bfloat16, 
+            trust_remote_code=True
         )
         
         # Load the tokenizer
@@ -148,7 +147,8 @@ class FlanT5SLT(AbstractSLT):
             model_name, 
             cache_dir=self.cache_dir,
             max_length=self.max_txt_len,
-            padding_side='right'
+            padding_side='right',
+            trust_remote_code=True
         )
         # Set pad token if not present
         if self.t5_tokenizer.pad_token is None:
@@ -342,10 +342,9 @@ class FlanT5SLT(AbstractSLT):
         
         # 3. Build the batch, sample by sample
         for i in range(bs):
-            # A. Create the prompt text using Gemma's format
-            # Gemma uses <start_of_turn> tokens for conversation
-            system_prompt_str = "<start_of_turn>user\n"
-            user_prompt_str = f"{prompts[i]}<end_of_turn>\n<start_of_turn>model\n"
+            # A. Create the prompt text using Qwen2's ChatML format
+            system_prompt_str = "<|im_start|>system\nYou are a helpful sign language translator.<|im_end|>\n"
+            user_prompt_str = f"<|im_start|>user\n{prompts[i]}<|im_end|>\n<|im_start|>assistant\n"
             
             # Tokenize text parts
             system_tokens = self.t5_tokenizer(system_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
@@ -421,8 +420,8 @@ class FlanT5SLT(AbstractSLT):
             prompt_masks_list = []
             
             for i in range(bs):
-                system_prompt_str = "<start_of_turn>user\n"
-                user_prompt_str = f"{prompts[i]}<end_of_turn>\n<start_of_turn>model\n"
+                system_prompt_str = "<|im_start|>system\nYou are a helpful sign language translator.<|im_end|>\n"
+                user_prompt_str = f"<|im_start|>user\n{prompts[i]}<|im_end|>\n<|im_start|>assistant\n"
                 
                 system_tokens = self.t5_tokenizer(system_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
                 user_tokens = self.t5_tokenizer(user_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
@@ -443,21 +442,19 @@ class FlanT5SLT(AbstractSLT):
             generated_ids = self.t5_model.generate(
                 inputs_embeds=prompt_embeds_padded,
                 attention_mask=prompt_attention_mask,
-                max_new_tokens=self.max_txt_len,
-                min_new_tokens=8,
-                do_sample=False,
                 num_beams=self.hparams.beam_size,
+                max_new_tokens=self.max_txt_len,
+                do_sample=True,
+                top_p=0.9,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
                 pad_token_id=self.t5_tokenizer.pad_token_id,
-                repetition_penalty=1.1,
-                length_penalty=0.8,
-                no_repeat_ngram_size=3
             )
             
-            # Decode the full output and extract only the generated part
+            prompt_lengths = [len(p) for p in prompt_embeds_list]
             generated_strings = []
             for i in range(bs):
-                gen_str = self.t5_tokenizer.decode(generated_ids[i], skip_special_tokens=True)
+                gen_tokens = generated_ids[i, prompt_lengths[i]:] 
+                gen_str = self.t5_tokenizer.decode(gen_tokens, skip_special_tokens=True)
                 generated_strings.append(gen_str.lower())
             
             reference_strings = [ref.lower() for ref in target_texts]

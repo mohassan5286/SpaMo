@@ -4,9 +4,9 @@ model:
   params:     
     lr: 8.0e-4
     monitor: val/bleu4
-    model_name: google/gemma-3-270m-it
+    model_name: Qwen/Qwen2-0.5B-Instruct
     cache_dir: data3/models
-    inter_hidden: 640
+    inter_hidden: 896
     input_size: 2048
     beam_size: 4
     max_frame_len: 512
