@@ -454,7 +454,7 @@ class FlanT5SLT(AbstractSLT):
                 do_sample=False,
                 num_beams=self.hparams.beam_size,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
-                pad_token_id=self.t5_tokenizer.pad_token_id,
+                # pad_token_id=self.t5_tokenizer.pad_token_id,
                 repetition_penalty=1.1,
                 length_penalty=0.8,
                 no_repeat_ngram_size=3
