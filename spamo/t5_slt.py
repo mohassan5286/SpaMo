@@ -104,8 +104,8 @@ class FlanT5SLT(AbstractSLT):
             r=self.lora_r,
             lora_alpha=self.lora_alpha,
             target_modules=[
-                "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", 
-                "self_attn.o_proj", "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                "q_proj", "k_proj", "v_proj", "o_proj",
+                "gate_proj", "up_proj", "down_proj"
             ],
             lora_dropout=self.lora_dropout,
             bias="none",
@@ -446,8 +446,10 @@ class FlanT5SLT(AbstractSLT):
                 max_new_tokens=self.max_txt_len,
                 do_sample=True,
                 top_p=0.9,
+                temperature=0.7,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
                 pad_token_id=self.t5_tokenizer.pad_token_id,
+                repetition_penalty=1.1,
             )
             
             prompt_lengths = [len(p) for p in prompt_embeds_list]
