@@ -482,8 +482,8 @@ class FlanT5SLT(AbstractSLT):
     def on_validation_epoch_end(self) -> None:
         print("\n===== Validation Examples =====")
         for i in range(min(5, len(self.generated))):
-            print(f"\033[94mReference: {self.references[i]}\033[0m")
-            print(f"\033[92mGenerated: {self.generated[i]}\033[0m")
+            print(f"\03D[94mReference: {self.references[i]}\033[0m")
+            print(f"\03D[92mGenerated: {self.generated[i]}\033[0m")
             print("-" * 50)
             
         eval_res = evaluate_results(
@@ -499,8 +499,8 @@ class FlanT5SLT(AbstractSLT):
     def on_test_epoch_end(self) -> None:
         print("\n===== Test Examples =====")
         for i in range(min(5, len(self.generated))):
-            print(f"\033[94mReference: {self.references[i]}\033[0m")
-            print(f"\033[92mGenerated: {self.generated[i]}\033[0m")
+            print(f"\03D[94mReference: {self.references[i]}\033[0m")
+            print(f"\03D[92mGenerated: {self.generated[i]}\033[0m")
             print("-" * 50)
             
         eval_res = evaluate_results(
