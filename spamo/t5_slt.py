@@ -454,23 +454,22 @@ class FlanT5SLT(AbstractSLT):
                 do_sample=False,
                 num_beams=self.hparams.beam_size,
                 eos_token_id=self.t5_tokenizer.eos_token_id,
-                # pad_token_id=self.t5_tokenizer.pad_token_id,
+                # pad_token_id=self.t5_tokenizer.pad_token_id, # <-- Keep this commented out.
                 repetition_penalty=1.1,
                 length_penalty=0.8,
                 no_repeat_ngram_size=3
             )
             
-            # --- FIX 2: Slice the generated_ids to remove the prompt ---
-            # Get the length of the prompt (all inputs were padded to the same length)
-            prompt_length = prompt_embeds_padded.shape[1]
+            # --- FINAL FIX: DO NOT SLICE THE OUTPUT ---
+            # When using inputs_embeds, .generate() ONLY returns the new tokens.
+            # The prompt is NOT included in the output tensor.
+            # Therefore, 'generated_ids' IS the 'generated_tokens_only'.
 
-            # Slice the generated_ids to get only the new tokens
-            generated_tokens_only = generated_ids[:, prompt_length:]
-
-            # Now, decode only the new tokens
+            # Now, decode generated_ids directly
             generated_strings = []
             for i in range(bs):
-                gen_str = self.t5_tokenizer.decode(generated_tokens_only[i], skip_special_tokens=True)
+                # Decode generated_ids, not a slice
+                gen_str = self.t5_tokenizer.decode(generated_ids[i], skip_special_tokens=True)
                 generated_strings.append(gen_str.lower())
             
             reference_strings = [ref.lower() for ref in target_texts]
