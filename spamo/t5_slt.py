@@ -35,7 +35,7 @@ class FlanT5SLT(AbstractSLT):
     def __init__(
         self,
         lr: float = 6.0e-4,
-        beam_size: int = 5,  
+        beam_size: int = 5,   
         tuning_type: str = 'lora', 
         model_name: Optional[str] = 'google/gemma-3-270m-it',
         frame_sample_rate: int = 1, 
@@ -148,8 +148,10 @@ class FlanT5SLT(AbstractSLT):
             model_name, 
             cache_dir=self.cache_dir,
             max_length=self.max_txt_len,
-            padding_side='right'
+            # --- FIX 1: Set padding_side to 'left' for batch generation ---
+            padding_side='left'
         )
+        
         # Set pad token if not present
         if self.t5_tokenizer.pad_token is None:
             self.t5_tokenizer.pad_token = self.t5_tokenizer.eos_token
@@ -192,6 +194,8 @@ class FlanT5SLT(AbstractSLT):
             spatiotemporal_length = spatiotemporal_mask.sum(1)
             new_length = spatial_length + spatiotemporal_length
             
+            # Note: This loop is a minor bottleneck. For max performance, 
+            # this logic should be moved to a custom batched collate_fn.
             joint_outputs = []
             for i in range(bs):
                 valid_spatial_output = spatial_outputs[i, :spatial_length[i], :]
@@ -339,8 +343,16 @@ class FlanT5SLT(AbstractSLT):
         batch_inputs_embeds = []
         batch_labels = []
         batch_attention_mask = []
+
+        # --- MODIFICATION: Define lists to store generation prompts ---
+        # We will build these in the main loop to avoid a second, redundant loop
+        batch_prompt_embeds = []
+        batch_prompt_attention_mask = []
         
         # 3. Build the batch, sample by sample
+        # Note: This loop is the main performance bottleneck.
+        # For maximum speed, this should be replaced with a batched 
+        # collate_fn in your DataLoader.
         for i in range(bs):
             # A. Create the prompt text using Gemma's format
             # Gemma uses <start_of_turn> tokens for conversation
@@ -385,6 +397,19 @@ class FlanT5SLT(AbstractSLT):
             batch_inputs_embeds.append(inputs_embeds)
             batch_labels.append(labels)
             batch_attention_mask.append(torch.ones(inputs_embeds.shape[0], device=self.device))
+
+            # --- MODIFICATION: Build prompt embeds for generation AT THE SAME TIME ---
+            # This avoids a second loop during validation/testing
+            if split != "train":
+                prompt_embeds = torch.cat([
+                    system_embeds,
+                    valid_vis_embeds,
+                    user_embeds
+                ], dim=0)
+                
+                batch_prompt_embeds.append(prompt_embeds)
+                batch_prompt_attention_mask.append(torch.ones(prompt_embeds.shape[0], device=self.device))
+            # --- END MODIFICATION ---
         
         # 4. Pad the Batch
         inputs_embeds = pad_sequence(batch_inputs_embeds, batch_first=True, padding_value=0.0)
@@ -417,28 +442,9 @@ class FlanT5SLT(AbstractSLT):
 
         # 6. Generation (for val/test)
         if split != "train":
-            prompt_embeds_list = []
-            prompt_masks_list = []
-            
-            for i in range(bs):
-                system_prompt_str = "<start_of_turn>user\n"
-                user_prompt_str = f"{prompts[i]}<end_of_turn>\n<start_of_turn>model\n"
-                
-                system_tokens = self.t5_tokenizer(system_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
-                user_tokens = self.t5_tokenizer(user_prompt_str, return_tensors='pt', add_special_tokens=False).input_ids.to(self.device)
-                
-                system_embeds = embed_layer(system_tokens.squeeze(0))
-                user_embeds = embed_layer(user_tokens.squeeze(0))
-                
-                valid_vis_len = visual_masks[i].sum()
-                valid_vis_embeds = visual_embeds[i, :valid_vis_len, :]
-
-                prompt_embeds = torch.cat([system_embeds, valid_vis_embeds, user_embeds], dim=0)
-                prompt_embeds_list.append(prompt_embeds)
-                prompt_masks_list.append(torch.ones(prompt_embeds.shape[0], device=self.device))
-
-            prompt_embeds_padded = pad_sequence(prompt_embeds_list, batch_first=True, padding_value=0.0)
-            prompt_attention_mask = pad_sequence(prompt_masks_list, batch_first=True, padding_value=0)
+            # --- MODIFICATION: The generation prompt loop is GONE. We just pad the lists. ---
+            prompt_embeds_padded = pad_sequence(batch_prompt_embeds, batch_first=True, padding_value=0.0)
+            prompt_attention_mask = pad_sequence(batch_prompt_attention_mask, batch_first=True, padding_value=0)
 
             generated_ids = self.t5_model.generate(
                 inputs_embeds=prompt_embeds_padded,
@@ -454,10 +460,17 @@ class FlanT5SLT(AbstractSLT):
                 no_repeat_ngram_size=3
             )
             
-            # Decode the full output and extract only the generated part
+            # --- FIX 2: Slice the generated_ids to remove the prompt ---
+            # Get the length of the prompt (all inputs were padded to the same length)
+            prompt_length = prompt_embeds_padded.shape[1]
+
+            # Slice the generated_ids to get only the new tokens
+            generated_tokens_only = generated_ids[:, prompt_length:]
+
+            # Now, decode only the new tokens
             generated_strings = []
             for i in range(bs):
-                gen_str = self.t5_tokenizer.decode(generated_ids[i], skip_special_tokens=True)
+                gen_str = self.t5_tokenizer.decode(generated_tokens_only[i], skip_special_tokens=True)
                 generated_strings.append(gen_str.lower())
             
             reference_strings = [ref.lower() for ref in target_texts]
