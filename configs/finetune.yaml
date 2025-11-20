@@ -5,7 +5,7 @@ model:
     lr: 6.0e-4
     monitor: val/bleu4
     model_name: google/flan-t5-xl
-    cache_dir: /data3/models
+    cache_dir: data3/models
     inter_hidden: 768
     input_size: 2048
     beam_size: 5
@@ -32,9 +32,10 @@ lightning:
       params:
         logging_interval: step
   trainer:
+    strategy: ddp_find_unused_parameters_true
     accumulate_grad_batches: 2
     accelerator: gpu
-    devices: 1
+    devices: 2
     max_epochs: 500
     gradient_clip_val: 1.0
     check_val_every_n_epoch: 2
@@ -51,36 +52,36 @@ data:
       params:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
-        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
-        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        feat_root: feat_Phoenix14T
+        mae_feat_root: mae_feat_Phoenix14T
         mode: train
         spatial: true
         spatiotemporal: true
-        spatial_postfix: _s2wrapping
-        spatiotemporal_postfix: _overlap-8-pretrained
+        spatial_postfix: ""
+        spatiotemporal_postfix: ""
         
     validation:
       target: dataset.p14t.Phoenix14T
       params:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
-        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
-        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        feat_root: feat_Phoenix14T
+        mae_feat_root: mae_feat_Phoenix14T
         mode: test
         spatial: true
         spatiotemporal: true
-        spatial_postfix: _s2wrapping
-        spatiotemporal_postfix: _overlap-8-pretrained
+        spatial_postfix: ""
+        spatiotemporal_postfix: ""
     
     test:
       target: dataset.p14t.Phoenix14T
       params:
         anno_root: ./preprocess/Phoenix14T
         vid_root: ./dataset/Phoenix14T
-        feat_root: /data2/sl_datasets/vit_feat_Phoenix14T
-        mae_feat_root: /data2/sl_datasets/mae_feat_Phoenix14T
+        feat_root: feat_Phoenix14T
+        mae_feat_root: mae_feat_Phoenix14T
         mode: test
         spatial: true
         spatiotemporal: true
-        spatial_postfix: _s2wrapping
-        spatiotemporal_postfix: _overlap-8-pretrained
+        spatial_postfix: ""
+        spatiotemporal_postfix: ""
